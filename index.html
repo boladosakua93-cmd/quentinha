@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quintal da Quentinha - Cardápio Online</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .menu-category {
+            display: none;
+        }
+        .menu-category.active {
+            display: block;
+        }
+        .tab-button.active {
+            background-color: #f59e0b;
+            color: white;
+        }
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        #orderModal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            animation: modalopen 0.5s;
+        }
+        @keyframes modalopen {
+            from {opacity: 0; transform: translateY(-50px)}
+            to {opacity: 1; transform: translateY(0)}
+        }
+        .cart-item:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Header -->
+    <header class="bg-amber-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <img src="https://img.icons8.com/color/48/000000/rice-bowl.png" alt="Logo" class="h-12 w-12 mr-3">
+                    <div>
+                        <h1 class="text-2xl font-bold">Quintal da Quentinha</h1>
+                        <p class="text-sm">Comida caseira com amor!</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="cartButton" class="bg-amber-700 hover:bg-amber-800 px-4 py-2 rounded-full flex items-center">
+                            <i class="fas fa-shopping-cart mr-2"></i>
+                            <span id="cartCount">0</span>
+                        </button>
+                        <div id="cartDropdown" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-md shadow-lg z-50 text-gray-800">
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg border-b pb-2">Seu Pedido</h3>
+                                <div id="cartItems" class="max-h-60 overflow-y-auto py-2">
+                                    <p class="text-center text-gray-500 py-4">Seu carrinho está vazio</p>
+                                </div>
+                                <div id="cartTotal" class="border-t pt-2 font-bold hidden">
+                                    Total: R$ <span>0.00</span>
+                                </div>
+                                <button id="checkoutBtn" class="w-full bg-amber-600 hover:bg-amber-700 text-white py-2 rounded mt-2 hidden">
+                                    Finalizar Pedido
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Menu Tabs -->
+        <div class="flex overflow-x-auto mb-8 bg-white rounded-lg shadow sticky top-0 z-10">
+            <button class="tab-button active px-6 py-3 font-medium whitespace-nowrap" data-category="quentinhas">Quentinhas</button>
+            <button class="tab-button px-6 py-3 font-medium whitespace-nowrap" data-category="bebidas">Bebidas</button>
+            <button class="tab-button px-6 py-3 font-medium whitespace-nowrap" data-category="sobremesas">Sobremesas</button>
+            <button class="tab-button px-6 py-3 font-medium whitespace-nowrap" data-category="balas">Balas</button>
+        </div>
+
+        <!-- Menu Items -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Quentinhas -->
+            <div id="quentinhas" class="menu-category active">
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300">
+                    <img src="https://img.freepik.com/fotos-gratis/prato-de-comida-caseira-com-arroz-feijao-carne-e-salada_23-2148982278.jpg" alt="Prato Feito" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Prato Feito</h3>
+                        <p class="text-gray-600 mb-3">Arroz, feijão, bife acebolado, batata frita e salada</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 18.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Prato Feito" data-price="18.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300 mt-6">
+                    <img src="https://img.freepik.com/fotos-gratis/prato-de-comida-brasileira-com-arroz-feijao-farofa-carne-e-salada_23-2148982279.jpg" alt="Feijoada Completa" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Feijoada Completa</h3>
+                        <p class="text-gray-600 mb-3">Feijoada com todas as carnes, arroz, couve, farofa e laranja</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 25.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Feijoada Completa" data-price="25.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300 mt-6">
+                    <img src="https://img.freepik.com/fotos-gratis/prato-de-comida-brasileira-com-arroz-feijao-frango-e-salada_23-2148982280.jpg" alt="Frango Grelhado" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Frango Grelhado</h3>
+                        <p class="text-gray-600 mb-3">Arroz, feijão, frango grelhado, purê de batata e salada</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 20.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Frango Grelhado" data-price="20.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300 mt-6">
+                    <img src="https://img.freepik.com/fotos-gratis/prato-de-comida-brasileira-com-arroz-feijao-carne-moida-e-salada_23-2148982281.jpg" alt="Carne Moída" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Carne Moída</h3>
+                        <p class="text-gray-600 mb-3">Arroz, feijão, carne moída com batata e salada</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 19.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Carne Moída" data-price="19.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300 mt-6">
+                    <img src="https://img.freepik.com/fotos-gratis/prato-de-comida-brasileira-com-arroz-feijao-peixe-e-salada_23-2148982282.jpg" alt="Peixe Frito" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Peixe Frito</h3>
+                        <p class="text-gray-600 mb-3">Arroz, feijão, peixe frito, pirão e salada</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 22.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Peixe Frito" data-price="22.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bebidas -->
+            <div id="bebidas" class="menu-category">
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300">
+                    <img src="https://img.freepik.com/fotos-gratis/garrafas-de-refrigerante_23-2148883760.jpg" alt="Refrigerante" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Refrigerante 350ml</h3>
+                        <p class="text-gray-600 mb-3">Coca-Cola, Guaraná, Fanta ou Sprite</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 5.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Refrigerante 350ml" data-price="5.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300 mt-6">
+                    <img src="https://img.freepik.com/fotos-gratis/suco-de-laranja-natural_23-2148883762.jpg" alt="Suco Natural" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Suco Natural 500ml</h3>
+                        <p class="text-gray-600 mb-3">Laranja, Maracujá, Limão ou Abacaxi</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 7.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Suco Natural 500ml" data-price="7.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300 mt-6">
+                    <img src="https://img.freepik.com/fotos-gratis/garrafa-de-agua-mineral_23-2148883764.jpg" alt="Água Mineral" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Água Mineral 500ml</h3>
+                        <p class="text-gray-600 mb-3">Água mineral sem gás</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 3.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Água Mineral 500ml" data-price="3.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300 mt-6">
+                    <img src="https://img.freepik.com/fotos-gratis/cerveja-gelada_23-2148883766.jpg" alt="Cerveja" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Cerveja 350ml</h3>
+                        <p class="text-gray-600 mb-3">Brahma, Skol, Antarctica ou Original</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 6.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Cerveja 350ml" data-price="6.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sobremesas -->
+            <div id="sobremesas" class="menu-category">
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300">
+                    <img src="https://img.freepik.com/fotos-gratis/pudim-de-leite-condensado_23-2148883768.jpg" alt="Pudim" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Pudim de Leite</h3>
+                        <p class="text-gray-600 mb-3">Pudim caseiro de leite condensado</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 8.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Pudim de Leite" data-price="8.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300 mt-6">
+                    <img src="https://img.freepik.com/fotos-gratis/brigadeiro-caseiro_23-2148883770.jpg" alt="Brigadeiro" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Brigadeiro (4 unid.)</h3>
+                        <p class="text-gray-600 mb-3">Brigadeiro caseiro tradicional</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 6.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Brigadeiro (4 unid.)" data-price="6.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300 mt-6">
+                    <img src="https://img.freepik.com/fotos-gratis/bolo-de-chocolate-caseiro_23-2148883772.jpg" alt="Bolo" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Fatia de Bolo</h3>
+                        <p class="text-gray-600 mb-3">Bolo de chocolate, cenoura ou laranja</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 7.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Fatia de Bolo" data-price="7.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300 mt-6">
+                    <img src="https://img.freepik.com/fotos-gratis/sorvete-de-creme_23-2148883774.jpg" alt="Sorvete" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Sorvete</h3>
+                        <p class="text-gray-600 mb-3">Sorvete de creme, chocolate ou morango</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 6.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Sorvete" data-price="6.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balas -->
+            <div id="balas" class="menu-category">
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300">
+                    <img src="https://img.freepik.com/fotos-gratis/balas-coloridas_23-2148883776.jpg" alt="Balas" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Balas Sortidas (10 unid.)</h3>
+                        <p class="text-gray-600 mb-3">Mix de balas de diversos sabores</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 4.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Balas Sortidas (10 unid.)" data-price="4.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300 mt-6">
+                    <img src="https://img.freepik.com/fotos-gratis/balas-de-menta_23-2148883778.jpg" alt="Bala de Menta" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Bala de Menta (5 unid.)</h3>
+                        <p class="text-gray-600 mb-3">Bala refrescante de menta</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 3.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Bala de Menta (5 unid.)" data-price="3.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-card bg-white rounded-lg shadow overflow-hidden transition duration-300 mt-6">
+                    <img src="https://img.freepik.com/fotos-gratis/balas-de-caramelo_23-2148883780.jpg" alt="Bala de Caramelo" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">Bala de Caramelo (5 unid.)</h3>
+                        <p class="text-gray-600 mb-3">Bala cremosa de caramelo</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-amber-600">R$ 3.00</span>
+                            <button class="add-to-cart bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded" data-name="Bala de Caramelo (5 unid.)" data-price="3.00">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Order Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content bg-white rounded-lg shadow-xl max-w-md mx-auto my-12 relative">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800">Finalizar Pedido</h2>
+                
+                <form id="orderForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="name">Nome Completo</label>
+                        <input type="text" id="name" class="w-full px-3 py-2 border rounded" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="phone">Telefone</label>
+                        <input type="tel" id="phone" class="w-full px-3 py-2 border rounded" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="address">Endereço</label>
+                        <input type="text" id="address" class="w-full px-3 py-2 border rounded" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="complement">Complemento</label>
+                        <input type="text" id="complement" class="w-full px-3 py-2 border rounded">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="neighborhood">Bairro</label>
+                        <input type="text" id="neighborhood" class="w-full px-3 py-2 border rounded" required>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">Forma de Pagamento</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="payment" value="Dinheiro" class="mr-2" checked>
+                                <span>Dinheiro</span>
+                            </label>
+                            <div id="cashChangeContainer" class="ml-6 mt-2">
+                                <label class="block text-gray-700 mb-1" for="cashAmount">Valor em dinheiro</label>
+                                <input type="number" id="cashAmount" class="w-full px-3 py-2 border rounded" min="0" step="0.01">
+                                <p id="changeResult" class="text-sm text-gray-600 mt-1"></p>
+                            </div>
+                            <label class="flex items-center">
+                                <input type="radio" name="payment" value="Cartão de crédito" class="mr-2">
+                                <span>Cartão de crédito</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="payment" value="Cartão de débito" class="mr-2">
+                                <span>Cartão de débito</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="payment" value="Pix" class="mr-2">
+                                <span>Pix</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4 mb-4">
+                        <h3 class="font-bold text-lg mb-2">Resumo do Pedido</h3>
+                        <div id="orderSummary" class="max-h-40 overflow-y-auto mb-2"></div>
+                        <div class="flex justify-between font-bold">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">R$ 0.00</span>
+                        </div>
+                        <div class="flex justify-between font-bold">
+                            <span>Taxa de Entrega:</span>
+                            <span id="deliveryFee">R$ 8.00</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-lg mt-2">
+                            <span>Total:</span>
+                            <span id="total">R$ 0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancelOrder" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded">
+                            Enviar Pedido
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Modal -->
+    <div id="supportModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Suporte</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500 mb-4">
+                        Para adquirir um cardápio como este, entre em contato com o desenvolvedor:
+                    </p>
+                    <a href="https://wa.me/5521978670637" target="_blank" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md">
+                        <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+                    </a>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="closeSupportModal" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-xl font-bold">Quintal da Quentinha</h2>
+                    <p class="text-gray-400">Comida caseira com amor!</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" id="supportLink" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-headset"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+                <p>Desenvolvido por Andre Pita. Para adquirir um cardápio nesse estilo, chame no <a href="#" id="footerSupportLink" class="text-amber-400 hover:underline">suporte</a>.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Menu Tabs
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and categories
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.menu-category').forEach(cat => cat.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Show corresponding category
+                const categoryId = button.getAttribute('data-category');
+                document.getElementById(categoryId).classList.add('active');
+            });
+        });
+
+        // Cart functionality
+        let cart = [];
+        const cartButton = document.getElementById('cartButton');
+        const cartDropdown = document.getElementById('cartDropdown');
+        const cartCount = document.getElementById('cartCount');
+        const cartItems = document.getElementById('cartItems');
+        const cartTotal = document.getElementById('cartTotal');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const orderModal = document.getElementById('orderModal');
+        const orderForm = document.getElementById('orderForm');
+        const orderSummary = document.getElementById('orderSummary');
+        const subtotalElement = document.getElementById('subtotal');
+        const totalElement = document.getElementById('total');
+        const deliveryFeeElement = document.getElementById('deliveryFee');
+        const supportModal = document.getElementById('supportModal');
+        const supportLink = document.getElementById('supportLink');
+        const footerSupportLink = document.getElementById('footerSupportLink');
+        const closeSupportModal = document.getElementById('closeSupportModal');
+
+        // Toggle cart dropdown
+        cartButton.addEventListener('click', () => {
+            cartDropdown.classList.toggle('hidden');
+        });
+
+        // Close cart dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!cartButton.contains(e.target) && !cartDropdown.contains(e.target)) {
+                cartDropdown.classList.add('hidden');
+            }
+        });
+
+        // Add to cart
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', () => {
+                const name = button.getAttribute('data-name');
+                const price = parseFloat(button.getAttribute('data-price'));
+                
+                // Check if item already exists in cart
+                const existingItem = cart.find(item => item.name === name);
+                
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({
+                        name,
+                        price,
+                        quantity: 1
+                    });
+                }
+                
+                updateCart();
+                cartDropdown.classList.remove('hidden');
+            });
+        });
+
+        // Update cart UI
+        function updateCart() {
+            // Update count
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            
+            // Update cart items
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-center text-gray-500 py-4">Seu carrinho está vazio</p>';
+                cartTotal.classList.add('hidden');
+                checkoutBtn.classList.add('hidden');
+            } else {
+                cartItems.innerHTML = '';
+                let total = 0;
+                
+                cart.forEach((item, index) => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+                    
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'flex justify-between items-center py-2 border-b cart-item';
+                    itemElement.innerHTML = `
+                        <div>
+                            <p class="font-medium">${item.name}</p>
+                            <p class="text-sm text-gray-500">${item.quantity} x R$ ${item.price.toFixed(2)}</p>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="font-medium mr-4">R$ ${itemTotal.toFixed(2)}</span>
+                            <button class="remove-item text-red-500 hover:text-red-700" data-index="${index}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    cartItems.appendChild(itemElement);
+                });
+                
+                // Update total
+                const deliveryFee = 8.00;
+                const grandTotal = total + deliveryFee;
+                
+                cartTotal.innerHTML = `Total: R$ <span>${grandTotal.toFixed(2)}</span>`;
+                cartTotal.classList.remove('hidden');
+                checkoutBtn.classList.remove('hidden');
+            }
+        }
+
+        // Remove item from cart
+        cartItems.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-item') || e.target.closest('.remove-item')) {
+                const button = e.target.classList.contains('remove-item') ? e.target : e.target.closest('.remove-item');
+                const index = parseInt(button.getAttribute('data-index'));
+                
+                if (cart[index].quantity > 1) {
+                    cart[index].quantity -= 1;
+                } else {
+                    cart.splice(index, 1);
+                }
+                
+                updateCart();
+            }
+        });
+
+        // Checkout button
+        checkoutBtn.addEventListener('click', () => {
+            openOrderModal();
+        });
+
+        // Open order modal
+        function openOrderModal() {
+            // Update order summary
+            orderSummary.innerHTML = '';
+            let subtotal = 0;
+            
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = 'flex justify-between py-1';
+                itemElement.innerHTML = `
+                    <span>${item.quantity} x ${item.name}</span>
+                    <span>R$ ${itemTotal.toFixed(2)}</span>
+                `;
+                orderSummary.appendChild(itemElement);
+            });
+            
+            const deliveryFee = 8.00;
+            const total = subtotal + deliveryFee;
+            
+            subtotalElement.textContent = `R$ ${subtotal.toFixed(2)}`;
+            deliveryFeeElement.textContent = `R$ ${deliveryFee.toFixed(2)}`;
+            totalElement.textContent = `R$ ${total.toFixed(2)}`;
+            
+            // Show modal
+            orderModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close order modal
+        document.getElementById('cancelOrder').addEventListener('click', () => {
+            orderModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+
+        // Cash payment change calculation
+        const cashRadio = document.querySelector('input[value="Dinheiro"]');
+        const cashChangeContainer = document.getElementById('cashChangeContainer');
+        const cashAmountInput = document.getElementById('cashAmount');
+        const changeResult = document.getElementById('changeResult');
+        
+        // Show/hide cash amount field
+        document.querySelectorAll('input[name="payment"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (radio.value === 'Dinheiro') {
+                    cashChangeContainer.style.display = 'block';
+                } else {
+                    cashChangeContainer.style.display = 'none';
+                }
+            });
+        });
+        
+        // Calculate change
+        cashAmountInput.addEventListener('input', () => {
+            const cashAmount = parseFloat(cashAmountInput.value) || 0;
+            const total = parseFloat(document.getElementById('total').textContent.replace('R$ ', ''));
+            
+            if (cashAmount >= total) {
+                const change = cashAmount - total;
+                changeResult.textContent = `Troco: R$ ${change.toFixed(2)}`;
+                changeResult.className = 'text-sm text-green-600 mt-1';
+            } else {
+                const missing = total - cashAmount;
+                changeResult.textContent = `Faltam: R$ ${missing.toFixed(2)}`;
+                changeResult.className = 'text-sm text-red-600 mt-1';
+            }
+        });
+
+        // Submit order form
+        orderForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const complement = document.getElementById('complement').value;
+            const neighborhood = document.getElementById('neighborhood').value;
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+            const total = document.getElementById('total').textContent;
+            
+            // Generate order number (random for demo)
+            const orderNumber = Math.floor(Math.random() * 1000);
+            const now = new Date();
+            const orderDate = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            // Build WhatsApp message
+            let message = `#### NOVO PEDIDO ####\n\n`;
+            message += `#️⃣   Nº pedido: ${orderNumber} feito em ${orderDate}\n\n`;
+            message += `👤   ${name}\n`;
+            message += `📞   ${phone}\n`;
+            message += `🛵   Endereço de entrega ${address}\n`;
+            message += `Complemento: ${complement || 'Nenhum'}\n`;
+            message += `Bairro: ${neighborhood}\n\n`;
+            message += `------- ITENS DO PEDIDO -------\n\n`;
+            
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                message += `${item.quantity} x ${item.name} 💵 ${item.quantity} x R$ ${item.price.toFixed(2)} = R$ ${itemTotal.toFixed(2)}\n\n`;
+            });
+            
+            message += `---\n\n`;
+            message += `SUBTOTAL: ${document.getElementById('subtotal').textContent}\n`;
+            message += `ENTREGA: ${document.getElementById('deliveryFee').textContent}\n`;
+            message += `VALOR FINAL: ${total}\n\n`;
+            message += `PAGAMENTO ${paymentMethod}: ${total}\n\n`;
+            
+            // Calculate delivery time (30-60 minutes from now)
+            const deliveryTime = Math.floor(Math.random() * 30) + 30;
+            message += `🕐   Prazo para entrega: ${deliveryTime} min`;
+            
+            // Encode message for WhatsApp URL
+            const encodedMessage = encodeURIComponent(message);
+            
+            // Open WhatsApp with the order
+            window.open(`https://wa.me/5521978670637?text=${encodedMessage}`, '_blank');
+            
+            // Reset cart and close modal
+            cart = [];
+            updateCart();
+            orderModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            orderForm.reset();
+        });
+
+        // Support modal
+        supportLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            supportModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+
+        footerSupportLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            supportModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+
+        closeSupportModal.addEventListener('click', () => {
+            supportModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === orderModal) {
+                orderModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            if (e.target === supportModal) {
+                supportModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Phone mask
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length > 11) {
+                value = value.substring(0, 11);
+            }
+            
+            if (value.length > 0) {
+                value = `(${value.substring(0, 2)}) ${value.substring(2)}`;
+            }
+            
+            if (value.length > 9) {
+                value = `${value.substring(0, 10)}-${value.substring(10)}`;
+            }
+            
+            e.target.value = value;
+        });
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=andrepiiiita/quentinha" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>
